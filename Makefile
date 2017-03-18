@@ -105,22 +105,27 @@ CPPS += $(ROOTPATH)/Solvers/LRBFGS.cpp $(ROOTPATH)/Solvers/LRBFGSLPSub.cpp $(ROO
 # convert a string to upper case.
 UPPER_TP  = $(shell echo $(TP) | tr a-z A-Z)
 
-# make a binary file, which is called in command line
-ROPTLIB:
-	$(CC) -O3 -w -std=c++0x $(ROOTPATH)/test/$(TP).cpp $(CPPS) $(INCDIRS) -D$(UPPER_TP) -llapack -lblas -lm -o $(TP)
+# # make a binary file, which is called in command line (commented out by KM)
+# ROPTLIB:
+# 	$(CC) -O3 -w -std=c++0x $(ROOTPATH)/test/$(TP).cpp $(CPPS) $(INCDIRS) -D$(UPPER_TP) -llapack -lblas -lm -o $(TP)
 
-#make a library
+# make a library
 libropt.so:
 	$(CC) -w -std=c++0x -shared -fPIC -O3 $(MANIFOLDS) $(OTHERS) $(PROBLEMS) $(SOLVERS) $(INCDIRS) -llapack -lblas -lm -o $@
 
-JULIA_LIB:=$(JULIA_DIR)/usr/lib
-JULIA_SRC:=$(JULIA_DIR)/src
-JULIA_INC:=$(JULIA_DIR)/usr/include
-CPPFLAGS:=-I$(JULIA_INC) -I$(JULIA_SRC) -I$(JULIA_SRC)/support
-LDFLAGS:=-L$(JULIA_LIB)
-LDLIBS=-ljulia
-export LD_LIBRARY_PATH:=$(JULIA_LIB):$(JULIA_LIB)/julia
+# Compile my example (myStiefelBrockett)
+CPPS += $(ROOTPATH)/experiments_km/myStiefelBrockett.cpp 
+myStiefelBrockett:
+	$(CC) -O3 -w -std=c++0x $(ROOTPATH)/experiments_km/myStiefelBrockettTest.cpp $(CPPS) $(INCDIRS) -DMYSTIEFELBROCKETTTEST -llapack -lblas -lm -o $@
 
-# make a shared library, which is used by Julia
-JuliaROPTLIB:
-	$(CC) -O3 -shared -fPIC -std=c++0x $(ROOTPATH)/test/$(TP).cpp $(CPPS) $(INCDIRS) -D$(UPPER_TP) $(CPPFLAGS) $(LDFLAGS) -Wl,-rpath,$(JULIA_LIB) -lm $(LDLIBS) -DJULIA_LIB_DIR=\"$(JULIA_DIR)/lib/julia\" -llapack -lblas -o $(TP).so
+# JULIA_LIB:=$(JULIA_DIR)/usr/lib
+# JULIA_SRC:=$(JULIA_DIR)/src
+# JULIA_INC:=$(JULIA_DIR)/usr/include
+# CPPFLAGS:=-I$(JULIA_INC) -I$(JULIA_SRC) -I$(JULIA_SRC)/support
+# LDFLAGS:=-L$(JULIA_LIB)
+# LDLIBS=-ljulia
+# export LD_LIBRARY_PATH:=$(JULIA_LIB):$(JULIA_LIB)/julia
+
+# # make a shared library, which is used by Julia
+# JuliaROPTLIB:
+# 	$(CC) -O3 -shared -fPIC -std=c++0x $(ROOTPATH)/test/$(TP).cpp $(CPPS) $(INCDIRS) -D$(UPPER_TP) $(CPPFLAGS) $(LDFLAGS) -Wl,-rpath,$(JULIA_LIB) -lm $(LDLIBS) -DJULIA_LIB_DIR=\"$(JULIA_DIR)/lib/julia\" -llapack -lblas -o $(TP).so
